@@ -48,6 +48,7 @@ function SlashCmdList.TALENTSAVER(msg, editbox)
         else
             Delete(rest);
         end
+        return;
     end
 
    DisplayHelp(); 
