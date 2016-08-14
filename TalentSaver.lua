@@ -15,19 +15,39 @@ SLASH_TALENTSAVER1, SLASH_TALENTSAVER2 = '/talentsaver', "/ts"
 function SlashCmdList.TALENTSAVER(msg, editbox)
     Debug("Handling slash command");
     Debug("msg: " .. msg); 
+
     command, rest = msg:match("^(%S*)%s*(.-)$");
+    command = strlower(command);
 
     if command == "save" then      
         Save(rest);
+        return;
     end
 
     if command == "list" then
         List();
+        return;
     end
 
     if command == "restore" or command == "load" then
         Restore(rest);
+        return;
     end
+
+    if(command == "delete") then
+        Delete(rest);
+        return;
+    end
+
+   DisplayHelp(); 
+end
+
+function DisplayHelp()
+    print("Talent saver command usage:");
+    print("/talentsaver save setName");
+    print("/talentsaver restore setName");
+    print("/talentsaver delete setName");
+    print("/talentsaver list");
 end
 
 function Save(name) 
@@ -40,24 +60,60 @@ function Save(name)
     end
 
     charTalents[specId][name] = talents;
+
+    print("Saved talent set " .. name .. " successfully!");
 end
 
 function List()
     Debug("HANDLING LIST")
+    print("Saved talent sets for " .. UnitName("player") .. ":");
    for specId, talentTable in pairs(charTalents) do
+
         Debug("specid " .. specId);
         print("Specialisation: " .. GetSpecializationNameForSpecID(specId));
+
+        if(talentTable == nil) then
+            return;
+        end
+
         for talentSetName, _ in pairs(talentTable) do
             print(talentSetName);
         end
     end
 end
 
+function Delete(setName)
+    specId, _ = GetCurrentSpecDetails();
+    specTalentSets = charTalents[specId];
+
+    if specTalentSets == nil then   
+        print("No profile found for " .. name);
+        ListCurrentSpecTalentSets();
+        return;
+    end
+
+    talentSetToDelete = specTalentSets[setName];
+
+    if(talentSetToDelete == nil) then
+        print("No profile found for " .. name);
+        ListCurrentSpecTalentSets();
+    end
+
+    charTalents[specId][setName] = nil;
+
+    print("Profile " .. setName .. " deleted succesfully!");
+end
+
 function ListCurrentSpecTalentSets()
     currentSpecId, specName = GetCurrentSpecDetails();
     talentSets = charTalents[currentSpecId];
 
-    print("Talent sets for " .. specName);
+    print("Talent sets for " .. specName .. ":");
+
+    if talentSets == nil then
+        return;
+    end
+
     for talentSetName, _ in pairs(talentSets) do
         print(talentSetName);
     end
