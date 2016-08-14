@@ -7,8 +7,7 @@ function Debug(msg)
     end
 end
 
-print('loading');
-
+Debug('loading');
 
 --Resgister slash commands
 SLASH_TALENTSAVER1, SLASH_TALENTSAVER2 = '/talentsaver', "/ts"
@@ -40,12 +39,15 @@ end
 
 function List()
     Debug("HANDLING LIST")
-    PrintCharTalents();
+    print("Saved talent sets for " .. UnitName("player"))
+   for k,_ in pairs(charTalents) do
+        print(k);
+    end
 end
 
 function Restore(name)
     talents = charTalents[name];
-    if(talents == nil) then
+    if talents == nil then
         print("No profile found for " .. name)
         List();
         return;
@@ -70,20 +72,8 @@ function OpenTalents()
     PlayerTalentFrameTab2:Click();  --clicks talents tab
 end
 
-function TalentsVisible()
-  return PlayerTalentFrame:IsVisible();    
-end
-
-
 function FormatUIElementName(row, column)
     return "PlayerTalentFrameTalentsTalentRow"..row.."Talent"..column;
-end
-
-function PrintCharTalents() 
-    print("Saved profiles for character:")   
-    for k,_ in pairs(charTalents) do
-        print(k);
-    end
 end
 
 function GetSelectedTalentInfo()
