@@ -1,5 +1,5 @@
 DEBUG = false;
-charTalents = {};
+charTalents = {}; -- table<spec, <row,column>>
 
 function Debug(msg)
     if DEBUG then
@@ -9,7 +9,7 @@ end
 
 Debug('loading');
 
---Resgister slash commands
+--Register slash commands
 SLASH_TALENTSAVER1, SLASH_TALENTSAVER2 = '/talentsaver', "/ts"
 
 function SlashCmdList.TALENTSAVER(msg, editbox)
@@ -17,26 +17,37 @@ function SlashCmdList.TALENTSAVER(msg, editbox)
     Debug("msg: " .. msg); 
 
     command, rest = msg:match("^(%S*)%s*(.-)$");
-    command = strlower(command);
-
-    if command == "save" then      
-        Save(rest);
-        return;
-    end
+    command = strlower(command);  
 
     if command == "list" then
         List();
         return;
     end
 
+    if command == "save" then      
+        if(IsEmpty(rest)) then
+            DisplayHelp();
+        else
+            Save(rest);
+        end
+        return;
+    end
+
     if command == "restore" or command == "load" then
-        Restore(rest);
+        if(IsEmpty(rest)) then
+            DisplayHelp();
+        else
+            Restore(rest);
+        end
         return;
     end
 
     if(command == "delete") then
-        Delete(rest);
-        return;
+       if(IsEmpty(rest)) then
+            DisplayHelp();
+        else
+            Delete(rest);
+        end
     end
 
    DisplayHelp(); 
@@ -83,11 +94,11 @@ function List()
 end
 
 function Delete(setName)
-    specId, _ = GetCurrentSpecDetails();
+    specId, specName = GetCurrentSpecDetails();
     specTalentSets = charTalents[specId];
 
     if specTalentSets == nil then   
-        print("No profile found for " .. name);
+        print("No profile found for " .. setName);
         ListCurrentSpecTalentSets();
         return;
     end
@@ -95,13 +106,27 @@ function Delete(setName)
     talentSetToDelete = specTalentSets[setName];
 
     if(talentSetToDelete == nil) then
-        print("No profile found for " .. name);
+        print("No profile found for " .. setName);
         ListCurrentSpecTalentSets();
+        return;
+    end
+    
+    charTalents[specId][setName] = nil;
+    CleanUpEmptySpec(specId);
+    print("Profile " .. setName .. " deleted succesfully!");
+end
+
+function CleanUpEmptySpec(specId)
+   --tidy up table by removing specs with no talent profiles saved against them
+    remainingTalentSetsForSpec = 0;
+    for _,_ in pairs(charTalents[specId]) do
+        remainingTalentSetsForSpec = remainingTalentSetsForSpec +1;
     end
 
-    charTalents[specId][setName] = nil;
-
-    print("Profile " .. setName .. " deleted succesfully!");
+    if(remainingTalentSetsForSpec == 0) then
+        Debug("Cleaning up " .. specName);
+        charTalents[specId] = nil;
+    end
 end
 
 function ListCurrentSpecTalentSets()
@@ -170,11 +195,8 @@ function GetSelectedTalentInfo()
  
     for i = 1, GetMaxTalentTier() do
         talents[i] = -1;
-        for j = 1, 3 do
-            Debug("i = " .. i .. "j =" .. j);
-
-            talentID, name, texture, selected, available = GetTalentInfo(i,j,1);
-            --Debug( "talentid :" .. talentID .. "name: "..name .. "texture:" .. texture .. "selected" .. tostring(selected) .. "available" .. tostring(available) )
+        for j = 1, 3 do            
+            talentID, name, texture, selected, available = GetTalentInfo(i,j,1);            
             if selected then
                   Debug(i.. " " .. j .. " selected")
                 talents[i] = j;                
@@ -182,4 +204,8 @@ function GetSelectedTalentInfo()
         end      
     end
     return talents;
+end
+
+function IsEmpty(string)
+    return s == nil or s == '';
 end
