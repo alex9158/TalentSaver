@@ -33,23 +33,51 @@ end
 function Save(name) 
     Debug("HANDLING SAVE")
     talents = GetSelectedTalentInfo();
-    charTalents[name] = talents;
-    PrintCharTalents();
+    specId, specName = GetCurrentSpecDetails();
+
+    if charTalents[specId] == nil then
+        charTalents[specId] = {};
+    end
+
+    charTalents[specId][name] = talents;
 end
 
 function List()
     Debug("HANDLING LIST")
-    print("Saved talent sets for " .. UnitName("player"))
-   for k,_ in pairs(charTalents) do
-        print(k);
+   for specId, talentTable in pairs(charTalents) do
+        Debug("specid " .. specId);
+        print("Specialisation: " .. GetSpecializationNameForSpecID(specId));
+        for talentSetName, _ in pairs(talentTable) do
+            print(talentSetName);
+        end
     end
 end
 
+function ListCurrentSpecTalentSets()
+    currentSpecId, specName = GetCurrentSpecDetails();
+    talentSets = charTalents[currentSpecId];
+
+    print("Talent sets for " .. specName);
+    for talentSetName, _ in pairs(talentSets) do
+        print(talentSetName);
+    end
+end
+
+
 function Restore(name)
-    talents = charTalents[name];
+    specId, specName = GetCurrentSpecDetails();
+
+    specTalentSets = charTalents[specId];    
+    if specTalentSets == nil then
+        print("No profile found for " .. name)
+        ListCurrentSpecTalentSets();
+        return;
+    end
+
+    talents = charTalents[specId][name];
     if talents == nil then
         print("No profile found for " .. name)
-        List();
+        ListCurrentSpecTalentSets();
         return;
     end
 
@@ -74,6 +102,11 @@ end
 
 function FormatUIElementName(row, column)
     return "PlayerTalentFrameTalentsTalentRow"..row.."Talent"..column;
+end
+
+function GetCurrentSpecDetails()
+ id, name = GetSpecializationInfo(GetSpecialization());
+ return id, name
 end
 
 function GetSelectedTalentInfo()
