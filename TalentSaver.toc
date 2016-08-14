@@ -1,0 +1,5 @@
+## Interface: 70000
+## Title: TalentSaver
+## Notes: Talent Saver v1
+## SavedVariablesPerCharacter: charTalents
+TalentSaver.lua
