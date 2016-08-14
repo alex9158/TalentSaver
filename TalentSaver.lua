@@ -207,5 +207,5 @@ function GetSelectedTalentInfo()
 end
 
 function IsEmpty(string)
-    return s == nil or s == '';
+    return string == nil or string == '';
 end
