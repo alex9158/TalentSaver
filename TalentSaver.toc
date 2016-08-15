@@ -2,4 +2,7 @@
 ## Title: TalentSaver
 ## Notes: Talent Saver v1
 ## SavedVariablesPerCharacter: charTalents
+Importer.lua
+Modules/Importer.lua
+Modules/Exporter.lua
 TalentSaver.lua
